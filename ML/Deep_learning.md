@@ -42,9 +42,9 @@
 对于分类问题，高层次中强化了输入中那些真正重要并且能用于区分的特征，同时抑制了无关的变量。
 深度学习的关键特点就是，各个层级中的特征并不是由工程师设计的：它们是使用通用的方法从数据中学来的。
 
+## 监督学习（Supervised Learning）
 
-
-## 有监督学习（Supervised Learning）
+监督学习是机器学习最常见的形式，无论是否是深度学习。
 
 ## 使用反向传播训练多层神经网络（Backpropagation to train multilayer architectures）
 
