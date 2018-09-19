@@ -1,6 +1,6 @@
 # 基于上下文环境断定目标缺失 Seeing What Is Not There: Learning Context to Determine Where Objects Are Missing
 
-## 摘要及简介
+## 1 摘要及简介
 
 计算机视觉研究大多关注的是图像中有什么，本文提出并训练了一个独立以目标为中心的周边环境模型来完成相反的工作，即检测图像中缺少什么。
 我们的周边环境模型可以检测到应该出现的物体，即使它没有出现。
@@ -39,7 +39,7 @@
 1. 提出一种通过强制神经网络忽略物体本身，学习非显式遮罩的训练策略。
 1. 应用于检测街景图中缺失路缘坡道的较理想结果；应用于检测不符合环境预期出现的人脸图像的初步结果。
 
-## 相关工作
+## 2 相关工作
 
 ### 目标识别中的周边环境
 
@@ -49,23 +49,72 @@
 
 ### Accessibility Task
 
-## 从显式目标遮罩中学习周边环境
+## 3 从显式目标遮罩中学习周边环境
 
 这部分介绍前文提到的周边环境学习算法的基本版本。
 如果周边环境被定义为目标物体周围除了目标物体本身的内容，那么可以认为这个模型字面上说是在学习周边环境：
 因为所有训练集中的目标物体都被遮罩掉了。
 
+在一个图像二分类训练集上训练模型。
 
+1. 正样本：目标物体在每张图中心，物体本身及其视觉延伸被黑框遮罩（预处理后值为零）。整个图片宽约是物体边界框的4倍。
+1. 负样本：每张图片中心区域采用类似的遮罩层随机裁剪。被覆盖的区域与ground truth标记物体重合不大于Jaccard系数0.2。
+
+> Jaccard Index : 给定两个集合A,B的Jaccard系数定义为A与B交集的大小与并集大小的比值。
+
+\begin{equation}
+J(A,B) = \frac{|A \cap B|}{|A \cup B|} = \frac{|A \cap B|}{|A|+|B|-|A \cap B|}
+\end{equation}
+
+> Jaccard值越大说明相似度越高。当A和B相等时，Jaccard(A,B)=1； 
+
+若一幅图像中有多个目标物体，在每个正样本中仅遮罩一个。
+因为对于一个目标物体来说，其他目标物体可以视作有用的“周边环境”。
+例如，路缘坡道就经常成对出现。
 
 \begin{equation}
 L_c = -Q_y(I_m) + log \sum_y e^{Q_y(I_m)}
 \end{equation}
 
-## A Fully Convolutional Model that Learns Implicit Masks
+## 4 学习隐式遮罩的全卷积模型 A Fully Convolutional Model that Learns Implicit Masks
 
-## Finding Missing Object Regions Pipeline
+\begin{equation}
+L_d = \| Q_y(I_m) - Q(I) \|_{p}
+\end{equation}
 
-## 实验
+![](.Seeing_what_is_not_there_images\F2.png)
+
+孪生训练全卷积周边环境神经网络 the Siamese trained Fully convolutional Context network (SFC)的训练方案图。
+直觉上看，强制全卷积神经网络Q输出相似的结果，无论输入图片被遮罩与否。
+
+> Siamese network 孪生神经网络，简单来说用于衡量两个输入的相似程度。孪生神经网络有两个输入（Input1 and Input2）,将两个输入feed进入两个神经网络（Network1 and Network2），这两个神经网络分别将输入映射到新的空间，形成输入在新的空间中的表示。通过Loss的计算，评价两个输入的相似度。
+
+
+\begin{equation}
+L = \lambda L_d + L_c 
+\end{equation}
+
+![](.Seeing_what_is_not_there_images\f3.png)
+
+上：输入：街景全景图。
+
+中：使用基本神经网络利用滑动窗口方法生成的热力图。由于较高的计算损失，空间分辨率低。
+
+下：利用SFC生成的稠密热力图。
+
+hard negative mining（难分样本挖掘）：把错误（尤其是顽固棘手的）送回训练集作为负样本，继续训练。
+
+## 5 找到缺失物体区域的渠道 Finding Missing Object Regions Pipeline
+
+利用独立的周边环境网络（基本网络或SFC网络），找出缺失物体区域的步骤如下：
+
+1. 通过周边环境网络Q生成环境热力图。热力图表示目标物体应该出现的位置。
+1. 利用目标检测器生成目标检测结果。将目标检测结果转换为二值图像（0-1图像），转换方式为，
+目标物体边界框以内均转为0，其它区域为1。
+1. 将热力图与二值图执行按像素与操作，得到结果图，是目标物体应该出现但目标检测器未检测到物体的区域。
+1. 根据结果图，取其高分区域（超过某一阈值），将原图中对应部分裁剪下来，得到物体缺失区域。
+
+## 6 实验
 
 ### 6.1. Characteristics of the Trained Model
 
@@ -73,7 +122,7 @@ L_c = -Q_y(I_m) + log \sum_y e^{Q_y(I_m)}
 
 ### 6.3. Finding Out of Context Faces
 
-## 结论
+## 7 结论
 
 | 左对齐标题 | 右对齐标题 | 居中对齐标题 |
 | :------| ------: | :------: |
