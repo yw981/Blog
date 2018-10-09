@@ -109,23 +109,67 @@ Q(I_m) = \begin{bmatrix}
 \end{bmatrix}
 $$
 
+全卷积层用于代替基础网络的最后三层。利用这个网络可以接受任意输入，无需显式遮罩。
+
+| 层类型 | Shape | 参数个数 |
+| :------: | :------: | :------: |
+| Convolution2D | (53, 53, 256) | 46022912 |
+| Dropout | - | 0 |
+| Convolution2D | (1, 1, 2) | 514 |
+
+测试时，利用滑动窗口生成概率热力图，每个像素代表此处可能含有目标物体的周边环境得分（context score）。
+在每个位置应用固定大小（本文实现中使用224*224）中心遮罩的图像块输入基础网络。遮罩大小参照训练集根据经验决定。
+    
+
 ## 4 学习隐式遮罩的全卷积模型 A Fully Convolutional Model that Learns Implicit Masks
+
+上述基础网络存在几个问题：
+
+1. 该网络倾向于artifacts。矩形遮罩图像会导致网络学习遮罩边界的低层次图像特征。
+1. 网络要求每个输入有显式遮罩层。这在应用于图像的所有位置和尺度来生成热力图时非常不便。
+
+将带有全连接层的卷积神经网络转换为全卷积网络有一套标准的程序。然而本文中的问题更加复杂。在训练过程中，
+基础网络在输入图像的中心看到的全是0，所以由于没有梯度更新，对应位置的参数权重随机无法控制（arbitrary）。
+如果应用一般方法转为全卷积网络用于非遮罩图像，从那些神经元里带来的输出可能会随机影响热力图中的结果。
+
+新问题：能否训练一个能在心中自动忽视遮罩区域的只关注周边环境的全卷积的网络？
+
+这个网络应该对于无论遮罩与否的图像都应该有有近似的输出。立足于这个概念，网络应该学习那些在遮罩和原始图像中都有的特征，即非遮罩区域的特征。
+
+![](.Seeing_what_is_not_there_images\F2.png)
+
+孪生训练全卷积周边环境神经网络 the Siamese trained Fully convolutional Context network (SFC)的训练方案图。
+直觉上看，强制全卷积神经网络Q对于遮罩图像与原始图像输出相似的结果。并生成正确的分类标签。
+
+> Siamese network 孪生神经网络，简单来说用于衡量两个输入的相似程度。孪生神经网络有两个输入（Input1 and Input2）,将两个输入feed进入两个神经网络（Network1 and Network2），这两个神经网络分别将输入映射到新的空间，形成输入在新的空间中的表示。通过Loss的计算，评价两个输入的相似度。
+
+我们除了需要最小化基础网络中的$ L_c $(classification loss)还需要最小化$ L_d $(distance loss)，定义为：
 
 \begin{equation}
 L_d = \| Q_y(I_m) - Q(I) \|_{p}
 \end{equation}
 
-![](.Seeing_what_is_not_there_images\F2.png)
+其中，$ Q(I_m) $是网络Q在输入为遮罩图像$ I_m $时的输出向量，Q(I)是输入为原始图像I时的输出。
+$ \left\| \cdot \right\|_p $表示$ L_p $-范数。
 
-孪生训练全卷积周边环境神经网络 the Siamese trained Fully convolutional Context network (SFC)的训练方案图。
-直觉上看，强制全卷积神经网络Q输出相似的结果，无论输入图片被遮罩与否。
+以上结构是一个孪生网络，所以本模型是一个孪生训练全卷积周边环境神经网络 the Siamese trained Fully convolutional Context network (SFC)。
+在$ L_d $中我们选用$ L_1 $范数。
+训练时，无需再手工指定遮罩大小，因为这一信息已经包含在卷积参数矩阵中。
 
-> Siamese network 孪生神经网络，简单来说用于衡量两个输入的相似程度。孪生神经网络有两个输入（Input1 and Input2）,将两个输入feed进入两个神经网络（Network1 and Network2），这两个神经网络分别将输入映射到新的空间，形成输入在新的空间中的表示。通过Loss的计算，评价两个输入的相似度。
-
+总损失函数定义为：
 
 \begin{equation}
 L = \lambda L_d + L_c 
 \end{equation}
+
+其中，本文中$ \lambda = 0.5 $
+
+上述训练策略的好处：
+
+1. SFC忽略物体遮罩区域，可直接应用于任意尺寸的新的无遮罩图像。且在生成稠密概率热力图时非常高效。
+1. SFC不易偏向artifacts。而基础网络会学习沿着遮罩边缘的特征。由于这些特征在无遮罩图像中并不出现，SFC忽略它们。
+1. 训练过程中，可以有效应用难分样本挖掘（hard negative mining）。在训练代（epoch）之间，可以将SFC应用于所有训练集图像来生成热力图，
+找出高分false positive区域。由于全卷积效率很高，这个过程可被包含在训练中。
 
 ![](.Seeing_what_is_not_there_images\f3.png)
 
@@ -133,9 +177,9 @@ L = \lambda L_d + L_c
 
 中：使用基本神经网络利用滑动窗口方法生成的热力图。由于较高的计算损失，空间分辨率低。
 
-下：利用SFC生成的稠密热力图。
+下：利用SFC生成的稠密热力图。对于1024*2048输入，基础网络需要5分钟生成中图，SFC只需不到4秒生成更高分辨率的图。
 
-hard negative mining（难分样本挖掘）：把错误（尤其是顽固棘手的）送回训练集作为负样本，继续训练。
+
 
 ## 5 找到缺失物体区域的渠道 Finding Missing Object Regions Pipeline
 
@@ -190,6 +234,10 @@ J(A,B) = \frac{|A \cap B|}{|A \cup B|} = \frac{|A \cap B|}{|A|+|B|-|A \cap B|}
 $$
 
 > Jaccard值越大说明相似度越高。当A和B相等时，Jaccard(A,B)=1； 
+
+#### hard negative mining（难分样本挖掘）
+
+把错误（尤其是顽固棘手的）送回训练集作为负样本，继续训练。
 
 #### ADADELTA: An Adaptive Learning Rate Method
 
