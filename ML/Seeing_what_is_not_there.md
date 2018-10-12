@@ -328,17 +328,17 @@ True negatives: 不是飞机的图片正确识别为不是飞机的图片。
 False positives: 不是飞机的图片被错误识别成为飞机。 
 False negatives: 是飞机的图片被错误识别成不是飞机的图片（没有识别出来）。
 
+“识别对了的”
+
 Precision其实就是在识别出来的图片中，True positives所占的比率： 
 这里写图片描述 
 其中的n代表的是(True positives + False positives)，也就是系统一共识别出来多少照片 。 
-在这一例子中，True positives为3，False positives为1，所以Precision值是 3/（3+1）=0.75。 
-意味着在识别出的结果中，飞机的图片占75%。
+
+识别出来的 / 所有应该识别出来的
 
 Recall 是被正确识别出来的飞机个数与测试集中所有飞机的个数的比值： 
 这里写图片描述 
 Recall的分母是(True positives + False negatives)，这两个值的和，可以理解为一共有多少张飞机的照片。 
-在这一例子中，True positives为3，False negatives为2，那么Recall值是 3/（3+2）=0.6。 
-意味着在所有的飞机图片中，60%的飞机被正确的识别成飞机.。
 
 #### Jaccard Index IoU
 
@@ -360,15 +360,12 @@ $$
 
 #### Adagrad
 
-Adagrad其实是对学习率进行了一个约束。即： 
-nt=nt−1+g2tnt=nt−1+gt2n_t=n_{t-1}+g_t^2 
-Δθt=−ηnt+ϵ−−−−−√∗gtΔθt=−ηnt+ϵ∗gt\Delta{\theta_t}=-\frac{\eta}{\sqrt{n_t+\epsilon}}*g_t 
-此处，对gtgtg_t从111到ttt进行一个递推形成一个约束项regularizer，−1∑tr=1(gr)2+ϵ√−1∑r=1t(gr)2+ϵ-\frac{1}{\sqrt{\sum_{r=1}^t(g_r)^2+\epsilon}} ，ϵϵ\epsilon用来保证分母非0
+Adagrad是对学习率进行了一个约束。 
 
 特点：
 
-前期gtgtg_t较小的时候， regularizer较大，能够放大梯度
-后期gtgtg_t较大的时候，regularizer较小，能够约束梯度
+前期能够放大梯度
+后期能够约束梯度
 适合处理稀疏梯度
 
 缺点：
@@ -380,15 +377,7 @@ nt=nt−1+g2tnt=nt−1+gt2n_t=n_{t-1}+g_t^2
 Adadelta
 
 Adadelta是对Adagrad的扩展，最初方案依然是对学习率进行自适应约束，但是进行了计算上的简化。 
-Adagrad会累加之前所有的梯度平方，而Adadelta只累加固定大小的项，并且也不直接存储这些项，仅仅是近似计算对应的平均值。即： 
-nt=ν∗nt−1+(1−ν)∗g2tnt=ν∗nt−1+(1−ν)∗gt2n_t=\nu*n_{t-1}+(1-\nu)*g_t^2 
-Δθt=−ηnt+ϵ−−−−−√∗gtΔθt=−ηnt+ϵ∗gt\Delta{\theta_t} = -\frac{\eta}{\sqrt{n_t+\epsilon}}*g_t
-
-在此处Adadelta其实还是依赖于全局学习率的，但是作者做了一定处理，经过近似牛顿迭代法之后： 
-E|g2|t=ρ∗E|g2|t−1+(1−ρ)∗g2tE|g2|t=ρ∗E|g2|t−1+(1−ρ)∗gt2E|g^2|_t=\rho*E|g^2|_{t-1}+(1-\rho)*g_t^2 
-Δxt=−∑t−1r=1Δxr−−−−−−−−√E|g2|t+ϵ−−−−−−−−√Δxt=−∑r=1t−1ΔxrE|g2|t+ϵ\Delta{x_t}=-\frac{\sqrt{\sum_{r=1}^{t-1}\Delta{x_r}}}{\sqrt{E|g^2|_t+\epsilon}} 
-其中，EEE代表求期望。 
-此时，可以看出Adadelta已经不用依赖于全局学习率了。
+Adagrad会累加之前所有的梯度平方，而Adadelta只累加固定大小的项，并且也不直接存储这些项，仅仅是近似计算对应的平均值。
 
 特点：
 
