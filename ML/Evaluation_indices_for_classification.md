@@ -8,7 +8,7 @@
 预测值1代表模型（输出）认为图片中有猫，预测值0代表模型认为图片中没有猫。下文中将都使用此例来直观解释各概念。
 
 |  | 预测值1 | 预测值0 | 合计（真实） |
-| ------ | ------ | ------ | ------ |
+| --- | --- | --- | --- |
 | 真实值1 | TP （True Positive） | FN （False Negative） | TP+FN （Actual Positive） |
 | 真实值0 | FP （False Positive） | TN （True Negative） | FP+TN （Actual Negative） |
 | 合计（预测） | TF+FP （Predicted Positive） | FN+TN （Predicted Negative） |
