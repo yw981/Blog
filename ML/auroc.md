@@ -1,1 +1,3 @@
-、受试者工作特征曲线 （receiver operating characteristic curve，简称ROC曲线）AUROC
+# 受试者工作特征曲线 （Receiver Operating Characteristic curve，简称ROC曲线）
+
+AUROC
