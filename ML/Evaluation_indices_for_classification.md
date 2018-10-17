@@ -15,7 +15,7 @@
 
 TP （True Positive）：真正类，模型认为图中有猫实际也有猫的。模型预测正确。
 
-FP （False Positive）：假正类，有些领域中称“假阳性”，模型认为图中有猫实际没有有猫的。模型预测错误。
+FP （False Positive）：假正类，又称“假阳性”，模型认为图中有猫而实际没有猫的。模型预测错误。
 
 FN （False Negative）：假负类，模型认为图中没有猫实际有猫的，即模型没检测出来。模型预测错误（两个F开头的都是模型预测错误）。
 
@@ -27,7 +27,7 @@ TN （True Negative）：真负类，模型认为图中没有猫实际也没有�
 
 TPR（True Positive Rate），即真正类率，又叫真阳性率、Recall（召回率）、Sensitivity（感受性）、Probability of Detection等。
 
-> 多个名字在不同场合对比时，各有应用。
+> 多个名字在不同场合各有应用。
 
 TPR = TP/(TP+FN) = TP/(Actual Positive) ，表示模型预测的真正类个数占所有真实值为1个数的比例。
 
@@ -39,11 +39,15 @@ FPR（False Positive Rate），即假正类率，又叫假阳性率，Fall-out�
 
 FPR = FP/(FP+TN) = FP/(Actual Negative) = 1 - Specificity，表示模型预测的假正类个数占所有真实值为0个数的比例。
 
+> FPR 预测错的/所有错的
+
 ## Sensitivity感受性 与 Specificity 特异性
 
 Sensitivity感受性，定义同TPR，见前文。
 
 ### Specificity 特异性
+
+Specificity 特异性，又叫Selectivity
 
 Specificity = TN/(FP+TN) = TN/(Actual Negative) = 1 - FPR
 
@@ -64,9 +68,9 @@ Sensitivity（感受性）和Specificity（特异性）的直观解释：
 
 因此，特异性高的模型，如果模型预测结果图中有猫，那么实际图中也有猫的概率非常大。
 
-> FPR 预测错的/所有错的
-
 ## Precision 准确率 与 Recall召回率
+
+Precision 准确率，又叫PPV（Positive Predictive Value）
 
 Precision = TP/(TP+FP) = TP/(Predicted Positive)
 
@@ -76,7 +80,7 @@ Precision = TP/(TP+FP) = TP/(Predicted Positive)
 
 Recall召回率，定义同TPR，见前文。
 
-召回率高：送给模型检测的“猫图”都被检测出来了。
+召回率高：送给模型检测的“猫图”都被检测出来了。（如果一个模型对任意的图像输入，都输出图中“有猫”，则召回率也是1）
 
 > 准确率Precision与召回率Recall概念常一同使用，可简单理解为：召回率是检出占所有送检的“多少”，准确率是检出的有“多少是对的”。
 召回率代表检出的“数量”，准确率代表检出的“质量”。
