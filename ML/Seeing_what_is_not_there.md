@@ -95,18 +95,20 @@ Tohme是半自动的结合众包和计算机视觉来收集城市中路缘坡道
 
 损失函数：使用交叉熵作为分类损失函数。
 
-\begin{equation}
+$$
 L_c = -Q_y(I_m) + log \sum_y e^{Q_y(I_m)}
-\end{equation}
+$$
 
 其中，$ y \in \{ 1,2 \} $是遮罩图片$ I_m $的groundtruth标签（1为正样本，2为负样本），
 $ Q(I_m) $是2*1向量，表示Q的输出，$ Q_y(I_m) $表示第y个分量。
 
 $$
-Q(I_m) = \begin{bmatrix}
-   Q_1(I_m) \\
+
+Q(I_m) = \\begin{bmatrix}
+   Q_1(I_m) \\\\
    Q_2(I_m)
-\end{bmatrix}
+\\end{bmatrix}
+
 $$
 
 全卷积层用于代替基础网络的最后三层，利用全卷积网络可以接受任意大小的输入，无需显式遮罩。
@@ -145,9 +147,9 @@ $$
 
 我们除了需要最小化基础网络中的$ L_c $(classification loss)还需要最小化$ L_d $(distance loss)，定义为：
 
-\begin{equation}
+$$
 L_d = \| Q_y(I_m) - Q(I) \|_{p}
-\end{equation}
+$$
 
 其中，$ Q(I_m) $是网络Q在输入为遮罩图像$ I_m $时的输出向量，Q(I)是输入为原始图像I时的输出。
 $ \left\| \cdot \right\|_p $表示$ L_p $-范数。
@@ -158,9 +160,9 @@ $ \left\| \cdot \right\|_p $表示$ L_p $-范数。
 
 总损失函数定义为：
 
-\begin{equation}
+$$
 L = \lambda L_d + L_c 
-\end{equation}
+$$
 
 其中，本文中$ \lambda = 0.5 $
 
