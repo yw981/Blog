@@ -24,7 +24,7 @@
 提出这个课题的最初契机是街景路缘坡道（路口马路牙子便于残疾人上下的斜坡）检测问题。
 标记城市路口路缘坡道的有无以便于残疾人规划其出行路线。
 
-![](Seeing_what_is_not_there_images\f1.png)
+![](Seeing_what_is_not_there_images/f1.png)
 
 > 图注：当路口路缘坡道缺失（如图中左侧橙色区域，右侧绿色区域为正常）时，行动障碍人士将无法穿越这个路口。
 我们提出了一种通过学习周边环境来检测物体缺失的模型，用来与目标检测的结果结合。
@@ -95,18 +95,20 @@ Tohme是半自动的结合众包和计算机视觉来收集城市中路缘坡道
 
 损失函数：使用交叉熵作为分类损失函数。
 
-\begin{equation}
+$$
 L_c = -Q_y(I_m) + log \sum_y e^{Q_y(I_m)}
-\end{equation}
+$$
 
 其中，$ y \in \{ 1,2 \} $是遮罩图片$ I_m $的groundtruth标签（1为正样本，2为负样本），
 $ Q(I_m) $是2*1向量，表示Q的输出，$ Q_y(I_m) $表示第y个分量。
 
 $$
+
 Q(I_m) = \begin{bmatrix}
    Q_1(I_m) \\
    Q_2(I_m)
 \end{bmatrix}
+
 $$
 
 全卷积层用于代替基础网络的最后三层，利用全卷积网络可以接受任意大小的输入，无需显式遮罩。
@@ -136,7 +138,7 @@ $$
 
 这个网络应该对于无论遮罩与否的图像都应该有有近似的输出。立足于这个概念，网络应该学习那些在遮罩和原始图像中都有的特征，即非遮罩区域的特征。
 
-![](Seeing_what_is_not_there_images\F2.png)
+![](Seeing_what_is_not_there_images/F2.png)
 
 孪生训练的全卷积周边环境神经网络 the Siamese trained Fully convolutional Context network (SFC)的训练方案图。
 直觉上看，强制全卷积神经网络Q对于遮罩图像与原始图像输出相似的结果。并生成正确的分类标签。
@@ -145,9 +147,9 @@ $$
 
 我们除了需要最小化基础网络中的$ L_c $(classification loss)还需要最小化$ L_d $(distance loss)，定义为：
 
-\begin{equation}
+$$
 L_d = \| Q_y(I_m) - Q(I) \|_{p}
-\end{equation}
+$$
 
 其中，$ Q(I_m) $是网络Q在输入为遮罩图像$ I_m $时的输出向量，Q(I)是输入为原始图像I时的输出。
 $ \left\| \cdot \right\|_p $表示$ L_p $-范数。
@@ -158,9 +160,9 @@ $ \left\| \cdot \right\|_p $表示$ L_p $-范数。
 
 总损失函数定义为：
 
-\begin{equation}
+$$
 L = \lambda L_d + L_c 
-\end{equation}
+$$
 
 其中，本文中$ \lambda = 0.5 $
 
@@ -171,7 +173,7 @@ L = \lambda L_d + L_c
 1. 训练过程中，可以有效应用难分样本挖掘（hard negative mining）。在训练代（epoch）之间，可以将SFC应用于所有训练集图像来生成热力图，
 找出高分false positive区域。由于全卷积效率很高，这个过程可被包含在训练中。
 
-![](Seeing_what_is_not_there_images\f3.png)
+![](Seeing_what_is_not_there_images/f3.png)
 
 上：输入：街景全景图。
 
@@ -196,7 +198,7 @@ L = \lambda L_d + L_c
 一、首先检测基本模型和SFC的灵敏度（sensitivity）。一个理想的模型应该对输入图像的中心区域有较小的响应（small response variations）。
 测试时，每次通过增加一个像素小噪声改变测试集图像，记录改变前后网络每像素输出的$ L_2 $距离。
 
-![](Seeing_what_is_not_there_images\f4.png)
+![](Seeing_what_is_not_there_images/f4.png)
 
 上图是基础网络和SFC在此测试中的对比，图中是20个不同图像测试结果之和。图中深色点代表高灵敏度点。
 与基础网络相比，SFC在中间有一个明显的空框，表明在这一区域的变化对网络的输出几乎没有影响（SFC习得的非显示遮罩区域）。
@@ -229,7 +231,7 @@ L = \lambda L_d + L_c
 
 使用5000个又训练集生成的样本训练每一代（epoch），其中一半是正样本一半是负样本。下图是一些示例。
 
-![](Seeing_what_is_not_there_images\f5.png)
+![](Seeing_what_is_not_there_images/f5.png)
 
 绿色矩形代表正样本，红色矩形代表负样本
 
@@ -247,7 +249,7 @@ SFC无需设置遮罩宽度，因此将输入图像大小缩放0.5、0.7、1.0�
 
 人工验证结果，我们提供一个网页，展示所有找到区域的图片，由用户反馈是否为缺失路缘坡道区域。参见下图
 
-![](Seeing_what_is_not_there_images\f6.png)
+![](Seeing_what_is_not_there_images/f6.png)
 
 每个缩略图是一个取得区域（retrieved region），下方是得分。用户点击缩略图来验证对应的图片。
 
@@ -258,7 +260,7 @@ Random scores：给图像所有区域随机打分。
 Spatial prior map：利用路缘坡道在街景图中先前的位置构建而成。我们用Spatial prior map代替context热力图作比较。
 先统计所有路缘坡道在训练集中的所有空间分布，然后对该分布使用sigma=10的30*30像素高斯核进行平滑（smoothed）。如下图。
 
-![](Seeing_what_is_not_there_images\f7.png)
+![](Seeing_what_is_not_there_images/f7.png)
 
 利用训练集中所有groundtruth位置生成的Spatial prior map。由于大部分全景图都是交叉路口，因此数据集中有较强的空间连续性。
 
@@ -268,7 +270,7 @@ Faster RCNN：利用缺失路缘坡道的标注，我们可以把这个问题当
 
 验证缺失路缘坡道需要专业知识。下图展示真实路缘坡道缺失区域对已访问区域的recall的对比。
 
-![](Seeing_what_is_not_there_images\f8.png)
+![](Seeing_what_is_not_there_images/f8.png)
 
 基础及SFC模型表现大幅超越2个baseline（random scores和prior maps）。带有难分样本挖掘SFC具有最好的表现。
 取得区域大小d=400像素，从543个测试图像中获得500个取得区域。
@@ -305,7 +307,7 @@ SFC大约能访问543张全景图测试集中的500个区域时，就找到27%�
 
 无周边环境的人脸定义为没有可见身体区域的人脸。下图展示了基本结果。
 
-![](Seeing_what_is_not_there_images\f9.png)
+![](Seeing_what_is_not_there_images/f9.png)
 
 ## 7 结论
 
