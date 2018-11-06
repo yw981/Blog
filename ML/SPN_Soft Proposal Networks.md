@@ -13,9 +13,13 @@ SP强化的CNN，后称Soft Proposal Networks (SPNs)，基于deep feature maps�
 经过统一的学习过程，SPN可学得更佳的目标中心filter，发现更多discriminative信息，抑制背景影响。
 在多个评价标准下，同时大幅提升弱监督目标定位和分类的性能。
 
-## 简介
+## 1 简介
 
-## SPN（Soft Proposal Network）
+Object Proposal的成功推动了目标定位的进程。
+
+本文设计了一种网络组件，SP（Soft Proposal），可插入标准卷积结构来提供几乎无计算量的Object Proposal。
+
+## 3 SPN（Soft Proposal Network）
 
 提出一个网络组件，SP（Soft Proposal），可插入标准卷积结构来提供几乎无计算量的Object Proposal。
 使用了SP模块的CNN称作SPN。
@@ -28,11 +32,24 @@ SP合成（Soft Proposal Coupling）,该步骤利用生成的Proposal Map来积�
 
 通过迭代更新的Proposal生成、合成、激活，达到SPN端到端的过程。
 
-### Soft Proposal生成
+![](spn_f1.png)
+
+SP（Soft Proposal）模块可插入任意CNN层。基于Deep Feature Map U来创建Proposal Map M，U和M合并成V。
+M在训练优化过程中逐步点亮目标信息区域。
+
+![](spn_f2.png)
+
+CNN网络CAM（Class Activation Map）的可视化和SPN对比。
+
+CNN易受到背景噪声误导，例如奶牛类图中的草，及共同出现物体误导，例如火车类图中的钢轨。
+
+相反，SPN在训练关注于目标信息区域来获得更细粒度的信息，例如人类图中的手，同时抑制背景的影响。
+
+### 3.1 Soft Proposal生成
 
 Proposal Map $ M \in R^{N \times N} $
 
-#### fig 4
+![](spn_f4.png)
 
 SP生成在单个SPN前向传播的过程（对应算法1中的内层循环）。根据经验，生成过程一半10次左右迭代达到稳定。
 
@@ -62,13 +79,37 @@ $$
 M \gets D(U^l(W^l)) \times M
 $$
 
-### Soft Proposal Coupling (SP合成)
+### 3.2 Soft Proposal Coupling (SP合成)
 
-### Weakly Supervised Activation
+通过弱监督Deep Feature Map生成的Proposal Map可以看做Objectness Map，其显示了可能是目标物体的区域。
+从图像表示角度说，Proposal Map点亮了图像分类的“感兴趣区域”。
+
+SP强化的CNN前向传播时，每个Feature Map被合成为$ V \in R^{N \times N} $，它是对应的Feature Map U与Proposal Map M的Hadamard积（元素乘）。
+
+$$
+V_k = U_k^l(W^l) \circ M, k=1,2, \dots ,K 
+$$
+
+式中，k表示通道序号，$ \circ $表示元素乘。经过合成的Feature Map V前向传播来预测$ y \in R^C $得分，C表示类别。
+再与标签t计算预测错误$ E = \ell(y,t) $，式中$ \ell(\cdot) $表示损失函数。
+
+SPN的反向传播过程，梯度受M影响
+
+$$
+W^l = W^l + \Delta W(M) = W^l - \eta \frac{\partial E}{\partial W^l}(M)
+$$
+
+其中，$\eta$表示学习率，$\Delta W(M)$代表$W^l$随M而变化，因为梯度$\frac{\partial E}{\partial W^l}$随而变化。
+
+因此，SPN在信息更丰富的区域学习了更多，同时减少了背景的影响。
+
+![](spn_algorithm1.png)
+
+### 3.3 Weakly Supervised Activation 弱监督激活
 
 弱监督学习任务使用空间池化层来累积Deep Feature Map形成特征向量，而后将这个特征向量用全连接层与图像分类连接。
 
-##### TODO fig 3
+![](spn_f3.png)
 
 第一行：SPN架构
 
@@ -89,4 +130,12 @@ SP模块产生的Proposal Map不断迭代演化，同时随卷积网络的训练
 4.4 SPN对分类问题的性能提升。
 
 使用SGD（随机梯度下降法）训练SPN，损失函数采用交叉熵，权重衰减0.0005，动量0.9，初始学习率0.01。
+
+![](spn_f5.png)
+
+![](spn_f6.png)
+
+![](spn_f7.png)
+
+![](spn_f8.png)
 
