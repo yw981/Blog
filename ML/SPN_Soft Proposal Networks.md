@@ -17,6 +17,17 @@ SP强化的CNN，后称Soft Proposal Networks (SPNs)，基于deep feature maps�
 
 ## SPN（Soft Proposal Network）
 
+提出一个网络组件，SP（Soft Proposal），可插入标准卷积结构来提供几乎无计算量的Object Proposal。
+使用了SP模块的CNN称作SPN。
+
+本文中我们只把SPN插入CNN的最后一个卷积层，该层深度信息最丰富，SPN具有一个空间池化层来输出与图像标签相关联的特征。
+
+SP生成步骤通过在深度响应的对应区域运行图传播算，来点亮目标定位的潜在区域。
+
+SP合成（Soft Proposal Coupling）,该步骤利用生成的Proposal Map来积聚生成Feature Map。
+
+通过迭代更新的Proposal生成、合成、激活，达到SPN端到端的过程。
+
 ### Soft Proposal生成
 
 ### Soft Proposal Coupling
