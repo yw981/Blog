@@ -202,7 +202,25 @@ Proposal示例。第一行是输入图像。第二行是proposal合成图像。�
 第三行，杂乱的背景，街上的"车"。
 第四行，低频出现的形式，合着的"伞"。
 
-### 4.3. Bounding Box Localization
+### 4.3. Bounding Box定位
+
+尽管在训练中没有目标物体级别的标签，SPN方法仍然可在response map的帮助下生成物体bounding box。
+对response map采用其均值作为threshold转换为二值图像，再缩放到原图大小，紧贴目标前景像素取框，作为预测目标的bounding box。
+
+使用Correct Localization(CorLoc)作为评价指标。
+
+#### TODO tab 4
 
 ![](spn_f8.png)
 
+图中看出，传统方法倾向于使用每个类中最具区分性的区域，例如人脸，而SPN能够发现更细节的物体信息，例如手和腿。
+"沙发"和"桌子"类，表明SPN能够正确定位被遮挡的物体。印证了Soft Proposal生成时的图传播过程，能够帮助寻找目标具有相似外观的碎片区域。
+
+### 4.4 图像分类
+
+尽管分类问题中用不到SPN的准确定位和对视觉线索综合理解的特点，
+SPN凭借训练时专注信息区域及抑制背景干扰的特性，仍旧能提升传统网络在分类问题上的表现。
+
+#### TODO tab 6
+
+结果表明，弱监督的object proposal在定位和分类问题上均有效。
