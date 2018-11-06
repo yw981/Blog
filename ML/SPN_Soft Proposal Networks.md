@@ -30,7 +30,39 @@ SP合成（Soft Proposal Coupling）,该步骤利用生成的Proposal Map来积�
 
 ### Soft Proposal生成
 
-### Soft Proposal Coupling
+Proposal Map $ M \in R^{N \times N} $
+
+#### fig 4
+
+SP生成在单个SPN前向传播的过程（对应算法1中的内层循环）。根据经验，生成过程一半10次左右迭代达到稳定。
+
+$ M \in R^{N \times N} $
+
+$ U^l \in R^{K \times N \times N} $
+
+$ {N \times N} $
+
+$ u_{i,j}^l = U_{\cdot ,i,j}^l \in R^K $
+
+$ D \in R^{ N^2 \times N^2 } $
+
+$ D_{iN+j,pN+q} $
+
+$ D_{iN+j,pN+q}^{\prime} \triangleq  \| u_{i,j}^l - u_{i,j}^l \| \cdot L(i-p,j-q) $
+
+$ L(i-p,j-q) \triangleq \exp(-\frac{a^2+b^2}{2\epsilon}) $
+
+$ D_{a,b} = \frac{D_{a,b}^{\prime}}{\textstyle\sum_{a=1}^N{D_{a,b}^N}} $
+
+$$
+M \gets D \times M
+$$
+
+$$
+M \gets D(U^l(W^l)) \times M
+$$
+
+### Soft Proposal Coupling (SP合成)
 
 ### Weakly Supervised Activation
 
