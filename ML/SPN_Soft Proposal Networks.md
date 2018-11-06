@@ -1,12 +1,12 @@
 # Soft Proposal Networks for Weakly Supervised Object Localization
 
-# 弱监督目标定位的SPN（Soft Proposal Networks）论文重点摘录及阅读笔记
+# 用于弱监督目标定位的SPN（Soft Proposal Networks）论文重点摘录及阅读笔记
 
 ## 摘要
 
 仅使用图像标签而不用边界框的弱监督目标定位仍是一个有挑战性的课题。
 在定位模型中，Object proposals是非常有效的组件，但它常常难于计算。
-本文中，我们首次将弱监督的Object proposal集成到CNNs端到端的网络中。
+本文中，我们首次将弱监督的Object roposal集成到CNNs端到端的网络中。
 设计并提出了一种网络组件SP（Soft Proposal），可嵌入标准CNN结构中，几乎无消耗地提供Object proposal。
 SP强化的CNN，后称Soft Proposal Networks (SPNs)，基于deep feature maps迭代进化的Object proposal投射回原图像，
 而后仅使用图像标签训练和调整优化网络参数。
@@ -127,15 +127,53 @@ SP模块产生的Proposal Map不断迭代演化，同时随卷积网络的训练
 
 4.3 进一步在弱监督Bounding Box定位任务上测试SPN，验证其发掘更复杂场景、更细粒度的视觉信息的能力。
 
-4.4 SPN对分类问题的性能提升。
+4.4 SPN对分类问题性能的提升。
 
 使用SGD（随机梯度下降法）训练SPN，损失函数采用交叉熵，权重衰减0.0005，动量0.9，初始学习率0.01。
 
+### 4.1 Proposal的质量
+
+在VOC2007数据集上使用目标能量图来评估Proposal质量，目标能量矩阵定义如下：
+
+对于非SPN的方法，像素的能量值定义为覆盖这个像素的所有Proposal Box的得分之和。因此，一个图像中的所有objectness values组成一张图，即目标能量图，表示模型预测的物体信息区域。
+
+对于SPN，通过将proposal map缩放到原图大小来生成目标能量图。
+
+然后，归一化每张能量图，计算落在ground truth bounding box内的像素的能量值之和，结果定义为目标能量（Object Energy）。
+
 ![](spn_f5.png)
+
+
+Proposal示例
+
+从定义中可看出，目标能量值在[0,1]区间内，表示图像中有多少带有信息的目标区域被方法点亮了。
+
+| 方法 | 目标能量（%） | 耗时（ms） |
+| --- | --- | --- |
+| Selective Search | 53.7 | 2000 |
+| EdgeBoxes | 58.8 | 200 |
+| RPN (监督) | 63.3 | 10.5 |
+| SPN (弱监督) | 62.2 | 0.9 |
+ 
+表中第二列表明SPN生成的Proposal质量很高。其得分远高于Selective Search和EdgeBoxes，这两种易生成冗余proposals且覆盖背景区域的方法。
+令人惊喜的是，使用弱监督训练的SPN的得分甚至可以媲美强监督训练的RPN。
 
 ![](spn_f6.png)
 
+上图(a)中显示，SPN在点亮小的目标区域上大幅强于Selective Search和EdgeBoxes，尽管它使用的proposal map是基于低分辨率的deep feature map生成的。
+
+上图(b)中显示，SPN的Proposal逐渐迭代演化，与网络参数同时优化。
+
+此外，SPN实现简单，且天然与GPU并行计算兼容，从上表第三列可看出，其计算消耗几乎可忽略。
+
+### 4.2. Pointing Localization
+
+
+
+
 ![](spn_f7.png)
+
+### 4.3. Bounding Box Localization
 
 ![](spn_f8.png)
 
