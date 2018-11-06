@@ -143,8 +143,7 @@ SP模块产生的Proposal Map不断迭代演化，同时随卷积网络的训练
 
 ![](spn_f5.png)
 
-
-Proposal示例
+Proposal示例。第一行是输入图像。第二行是proposal合成图像。第三行是根据Proposal Map前100高分的对应区域。
 
 从定义中可看出，目标能量值在[0,1]区间内，表示图像中有多少带有信息的目标区域被方法点亮了。
 
@@ -168,10 +167,40 @@ Proposal示例
 
 ### 4.2. Pointing Localization
 
+#### 无预测的点定位 Pointing without prediction
 
+为评估SPN是否习得了能够有效地产生准确的相应图的更具区分度的参数，使用弱监督点定位任务进行测试。
 
+选择3个成功的CNN架构，包括CNN-S, VGG16和GoogLeNet，通过在最后一个卷积层增加SP模块把它们升级成SPN。
+所有SPN均优化调好参数并具有相同的超参数，然后生成response map。
+
+点定位的准确率计算：如果最大响应像素（pixel of maximum response）落在任意一个指定目标分类的ground truth bounding box中，
+包括15像素容差范围，则记为命中（hit）,否则记为未中（miss）。准确率定义为$ Acc = \frac{ Hits }{ Hits+Misses } $。
+总结果是每个类点定位准确率的平均值。
+
+在VOC2007上，分两个测试集，All和Diff(Difficult) ,All是所有的，Diff是All的子集，包含混合类或小目标的较难训练集。
+
+#### TODO tab 2
+
+点定位表现的显著提高验证了SP模块引导SPN学习目标中心的参数的有效性。
+
+#### 带预测的点定位 Pointing with prediction
+
+进一步在更具挑战性的带预测的点定位任务上测试SPN。该任务不仅要求网络输出目标类别存在与否的预测值，还要正确地点定位到目标。
+
+将预训练的VGG16升级成SPN，分别在VOC2012和COCO2014上优化调参，20个训练代。
+
+#### TODO tab 3
+
+结果如上表所示，SP模块在保存CNN分类能力的同时赋予了其准确定位的能力。后文中将展示SP模块还提升了分类能力。
 
 ![](spn_f7.png)
+
+点定位示例，显示SPN在复杂场景中的有效性：
+第一行，噪声共同出现的物体，找"盆栽"图中的树叶。
+第二行，小物体，手中的"苹果"。
+第三行，杂乱的背景，街上的"车"。
+第四行，低频出现的形式，合着的"伞"。
 
 ### 4.3. Bounding Box Localization
 
