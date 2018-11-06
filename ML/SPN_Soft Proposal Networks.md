@@ -15,10 +15,35 @@ SP强化的CNN，后称Soft Proposal Networks (SPNs)，基于deep feature maps�
 
 ## 简介
 
-## SPN（Soft Proposal Networks）
+## SPN（Soft Proposal Network）
 
 ### Soft Proposal生成
 
 ### Soft Proposal Coupling
 
 ### Weakly Supervised Activation
+
+弱监督学习任务使用空间池化层来累积Deep Feature Map形成特征向量，而后将这个特征向量用全连接层与图像分类连接。
+
+##### TODO fig 3
+
+第一行：SPN架构
+
+第二行：展示Proposal Map在训练过程中各训练代的演化(对应算法1中的外层循环)。
+
+第三行：展示"奶牛"类相应图的演化进程。
+
+SP模块产生的Proposal Map不断迭代演化，同时随卷积网络的训练过程优化，使SPN习得细粒度的视觉信息以便于定位。
+
+## 实验
+
+4.1 SPN与传统Object Proposal方法的对比，显示出SPN能在几乎可忽略的计算量下生成高质量的Proposal。
+
+4.2 弱监督点定位，SPN可以学得更佳的物体置于中心的模型，提供准确的类响应。
+
+4.3 进一步在弱监督Bounding Box定位任务上测试SPN，验证其发掘更复杂场景、更细粒度的视觉信息的能力。
+
+4.4 SPN对分类问题的性能提升。
+
+使用SGD（随机梯度下降法）训练SPN，损失函数采用交叉熵，权重衰减0.0005，动量0.9，初始学习率0.01。
+
