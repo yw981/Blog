@@ -180,7 +180,7 @@ Proposal示例。第一行是输入图像。第二行是proposal合成图像。�
 
 在VOC2007上，分两个测试集，All和Diff(Difficult) ,All是所有的，Diff是All的子集，包含混合类或小目标的较难训练集。
 
-#### TODO tab 2
+![](spn_t2.png)
 
 点定位表现的显著提高验证了SP模块引导SPN学习目标中心的参数的有效性。
 
@@ -190,7 +190,7 @@ Proposal示例。第一行是输入图像。第二行是proposal合成图像。�
 
 将预训练的VGG16升级成SPN，分别在VOC2012和COCO2014上优化调参，20个训练代。
 
-#### TODO tab 3
+![](spn_t3.png)
 
 结果如上表所示，SP模块在保存CNN分类能力的同时赋予了其准确定位的能力。后文中将展示SP模块还提升了分类能力。
 
@@ -209,7 +209,7 @@ Proposal示例。第一行是输入图像。第二行是proposal合成图像。�
 
 使用Correct Localization(CorLoc)作为评价指标。
 
-#### TODO tab 4
+![](spn_t4.png)
 
 ![](spn_f8.png)
 
@@ -221,6 +221,6 @@ Proposal示例。第一行是输入图像。第二行是proposal合成图像。�
 尽管分类问题中用不到SPN的准确定位和对视觉线索综合理解的特点，
 SPN凭借训练时专注信息区域及抑制背景干扰的特性，仍旧能提升传统网络在分类问题上的表现。
 
-#### TODO tab 6
+![](spn_t6.png)
 
 结果表明，弱监督的object proposal在定位和分类问题上均有效。
