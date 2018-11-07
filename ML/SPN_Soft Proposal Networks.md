@@ -15,9 +15,18 @@ SP强化的CNN，后称Soft Proposal Networks (SPNs)，基于deep feature maps�
 
 ## 1 简介
 
-Object Proposal的成功推动了目标定位的进程。
+Object Proposal的成功推动了目标定位的进程。目标检测由pipelined架构（Fast R-CNN等）演化到unified架构（YOLO、Faster R-CNN）。
 
-本文设计了一种网络组件，SP（Soft Proposal），可插入标准卷积结构来提供几乎无计算量的Object Proposal。
+传统模型问题
+
+1. 尽管unified架构在全监督目标检测上表现优异，但无法直接应用于仅用图像标签的弱监督。
+1. Object Proposal方法，计算量大，增加消耗。
+1. CAM易受背景等噪声影响。
+
+本文贡献
+
+1. 本文设计了一种网络组件，SP（Soft Proposal），可插入标准卷积结构来提供几乎无计算量的Object Proposal，并且随网络的优化而优化。
+1. 将传统成功的CNN网络升级成SPN，包括CNN-S、VGG16和GoogLeNet，同时，大幅提升最新的弱监督目标定位表现。
 
 ## 3 SPN（Soft Proposal Network）
 
@@ -47,37 +56,49 @@ CNN易受到背景噪声误导，例如奶牛类图中的草，及共同出现�
 
 ### 3.1 Soft Proposal生成
 
-Proposal Map $ M \in R^{N \times N} $
+Proposal Map $ M \in R^{N \times N} $ ：由SP模块基于deep feature map生成的objectness map。
+
+若将SP模块插入第l个卷积层后，$ U^l \in R^{K \times N \times N} $表示第l层的deep feature map，K是map数量。
+
+$ {N \times N} $表示feature map的空间大小。
+$ U^l $的每个位置(i,j)，有$ u_{i,j}^l = U_{\cdot ,i,j}^l \in R^K $，贯穿$ U^l $的K个通道。
+
+全连接有向图G：节点是$ U^l $的每个节点指向每个节点，权重矩阵$ D \in R^{ N^2 \times N^2 } $，
+其中$ D_{iN+j,pN+q} $表示节点(i,j)指向节点(p,q)的边的权重。
 
 ![](spn_f4.png)
 
 SP生成在单个SPN前向传播的过程（对应算法1中的内层循环）。根据经验，生成过程一半10次左右迭代达到稳定。
 
-$ M \in R^{N \times N} $
+生成D的过程，需要应用两种objectness度量：
 
-$ U^l \in R^{K \times N \times N} $
+1. 属于同类别的图像区域具有相似的deep feature
+1. 空间临近区域呈现语义相关性
 
-$ {N \times N} $
+结合特征和距离，定义不相似度$ D_{iN+j,pN+q}^{\prime} \triangleq  \| u_{i,j}^l - u_{i,j}^l \| \cdot L(i-p,j-q) $，
+其中距离$ L(i-p,j-q) \triangleq \exp(-\frac{a^2+b^2}{2\epsilon}) $，式中$ \epsilon $根据经验设为0.15N。
+然后归一化，$ D_{a,b} = \frac{D_{a,b}^{\prime}}{\textstyle\sum_{a=1}^N{D_{a,b}^N}} $。
 
-$ u_{i,j}^l = U_{\cdot ,i,j}^l \in R^K $
+权重矩阵D定义完成后，使用图传播算法，例如随机游走（random walk），在那些具有高不相似度的节点和它们周边迭代累加objectness confidence。
+节点入度传入confidence，出度散出confidence。
 
-$ D \in R^{ N^2 \times N^2 } $
-
-$ D_{iN+j,pN+q} $
-
-$ D_{iN+j,pN+q}^{\prime} \triangleq  \| u_{i,j}^l - u_{i,j}^l \| \cdot L(i-p,j-q) $
-
-$ L(i-p,j-q) \triangleq \exp(-\frac{a^2+b^2}{2\epsilon}) $
-
-$ D_{a,b} = \frac{D_{a,b}^{\prime}}{\textstyle\sum_{a=1}^N{D_{a,b}^N}} $
+为计算方便，将二位M变为$N^2$个元素的向量，初值为$ \frac{1}{N^2} $。
 
 $$
 M \gets D \times M
 $$
 
+上述过程是特征向量中心性量度（eigenvector centrality measure）的一个变体，
+输出一个表示每个位置objectness confidence的proposal map。
+
+由于权重矩阵D随deep feature map $U^l$变化，$U^l$随第l层的卷积参数$W^l$变化，
+为表示这种依赖关系，上式可写为：
+
 $$
 M \gets D(U^l(W^l)) \times M
 $$
+
+随机游走过程可以看作马尔可夫链，它能够到达稳定状态，因为源于G是强连通图，链具有遍历性。
 
 ### 3.2 Soft Proposal Coupling (SP合成)
 
@@ -108,6 +129,16 @@ $$
 ### 3.3 Weakly Supervised Activation 弱监督激活
 
 弱监督学习任务使用空间池化层来累积Deep Feature Map形成特征向量，而后将这个特征向量用全连接层与图像分类连接。
+
+![](spn_3_3_eqs.png)
+
+类别c的Response Map $R_c$，类似于CAM
+
+$$
+R_c = \textstyle\sum_k{ \omega_{k,c} \cdot \hat{U}_k \circ M}
+$$
+
+其中，$\hat{U}_k$是最后一个卷积层第k个feature map，$\omega_{k,c}$是全连接层连接第c个输出节点（分类）和第k个feature向量的权重值。
 
 ![](spn_f3.png)
 
