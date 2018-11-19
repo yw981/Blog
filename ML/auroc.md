@@ -1,4 +1,4 @@
-# 受试者工作特征 ROC（Receiver Operating Characteristic）：空间、曲线（ROC Curve）及面积（AUROC）
+# 受试者工作特征 ROC（Receiver Operating Characteristic）：曲线（ROC Curve）、面积（AUROC）及空间（ROC Space）
 
 ## ROC定义
 
@@ -32,30 +32,36 @@ ROC曲线就是以假正类率FPR（False Positive Rate）为横轴，真正类�
 
 其实，我们并不一定要得到每个测试样本是正样本的概率值，只要得到这个分类器对该测试样本的“评分值”即可（评分值并不一定在(0,1)区间）。评分越高，表示分类器越肯定地认为这个测试样本是正样本，而且同时使用各个评分值作为threshold。我认为将评分值转化为概率更易于理解一些。
 
-## AUC值的计算
+## AUROC值的计算
 
-AUC (Area Under Curve) 被定义为ROC曲线下的面积，显然这个面积的数值不会大于1。又由于ROC曲线一般都处于y=x这条直线的上方，所以AUC的取值范围一般在0.5和1之间。使用AUC值作为评价标准是因为很多时候ROC曲线并不能清晰的说明哪个分类器的效果更好，而作为一个数值，对应AUC更大的分类器效果更好。
+AUROC (Area Under Receiver Operating Characteristic curve)，有时简称AUC (Area Under Curve) 
+定义为ROC曲线下的面积，显然这个面积的数值不会大于1。又由于ROC曲线一般都处于y=x这条直线的上方，所以AUROC的取值范围一般在0.5和1之间。使用AUROC值作为评价标准是因为很多时候ROC曲线并不能清晰的说明哪个分类器的效果更好，而作为一个数值，对应AUROC更大的分类器效果更好。
 
-AUC的计算有两种方式，梯形法和ROC AUCH法，都是以逼近法求近似值
+> AUROC计算结果为一实数值，通常介于0.5~1之间。
 
-## AUC意味着什么
+AUROC的计算有两种方式，梯形法和ROC AUCH法，都是以逼近法求近似值
 
-那么AUC值的含义是什么呢？根据(Fawcett, 2006)，AUC的值的含义是：
+## AUROC意味着什么
 
-> The AUC value is equivalent to the probability that a randomly chosen positive example is ranked higher than a randomly chosen negative example.
+那么AUROC值的含义是什么呢？根据(Fawcett, 2006)，AUROC的值的含义是：
 
-这句话有些绕，我尝试解释一下：首先AUC值是一个概率值，当你随机挑选一个正样本以及一个负样本，当前的分类算法根据计算得到的Score值将这个正样本排在负样本前面的概率就是AUC值。当然，AUC值越大，当前的分类算法越有可能将正样本排在负样本前面，即能够更好的分类。
+> The AUROC value is equivalent to the probability that a randomly chosen positive example is ranked higher than a randomly chosen negative example.
 
-从AUC判断分类器（预测模型）优劣的标准：
+解释：首AUROC值代表一个概率值——对于随机挑选一个正样本以及一个负样本，当前的分类算法根据计算得到的Score值将这个正样本排在负样本前面的概率即AUROC值。
+当然，AUROC值越大，当前的分类算法越有可能将正样本排在负样本前面，即能够更好的分类。
 
-AUC = 1，是完美分类器，采用这个预测模型时，存在至少一个阈值能得出完美预测。绝大多数预测的场合，不存在完美分类器。
-0.5 < AUC < 1，优于随机猜测。这个分类器（模型）妥善设定阈值的话，能有预测价值。
-AUC = 0.5，跟随机猜测一样（例：丢铜板），模型没有预测价值。
-AUC < 0.5，比随机猜测还差；但只要总是反预测而行，就优于随机猜测。
+从AUROC判断分类器（预测模型）优劣的标准：
+
+AUROC = 1，是完美分类器，采用这个预测模型时，存在至少一个阈值能得出完美预测。绝大多数预测的场合，不存在完美分类器。
+0.5 < AUROC < 1，优于随机猜测。这个分类器（模型）妥善设定阈值的话，能有预测价值。
+AUROC = 0.5，跟随机猜测一样（例：丢铜板），模型没有预测价值。
+AUROC < 0.5，比随机猜测还差；但只要总是反预测而行，就优于随机猜测。
 
 ![](three_aoc.png)
 
-简单说：AUC值越大的分类器，正确率越高。
+简单说：AUROC值越大的分类器，正确率越高。
+
+## ROC空间
 
 ![](four_results.png)
 

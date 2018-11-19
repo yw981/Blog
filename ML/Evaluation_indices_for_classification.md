@@ -1,4 +1,4 @@
-# 分类问题结果统计指标的解释：真正类率TPR与假正类率FPR、准确率与召回、感受性与特异性
+# 分类问题结果统计指标的解释：真正类率TPR与假正类率FPR、查全率与查准率、感受性与特异性
 
 ## 预测及结果概念定义：TP、FN、FP、TN
 
@@ -21,11 +21,11 @@ FN （False Negative）：假负类，模型认为图中没有猫实际有猫的
 
 TN （True Negative）：真负类，模型认为图中没有猫实际也没有猫的。模型预测正确（两个T开头的都是模型预测正确）。
 
-## TPR（Recall）真正类率 与 FPR 假负类率
+## TPR（Recall）真正类率（查全率） 与 FPR 假负类率
 
-### TPR（Recall）真正类率
+### TPR（Recall）真正类率（查全率）
 
-TPR（True Positive Rate），即真正类率，又叫真阳性率、Recall（召回率）、Sensitivity（感受性）、Probability of Detection等。
+TPR（True Positive Rate），即真正类率，又叫真阳性率、Recall（查全率、召回率）、Sensitivity（感受性）、Probability of Detection等。
 
 > 多个名字在不同场合各有应用。
 
@@ -68,19 +68,19 @@ Sensitivity（感受性）和Specificity（特异性）的直观解释：
 
 因此，特异性高的模型，如果模型预测结果图中有猫，那么实际图中也有猫的概率非常大。
 
-## Precision 准确率 与 Recall召回率
+## Precision 查准率 与 Recall查全率
 
-Precision 准确率，又叫PPV（Positive Predictive Value）
+Precision 查准率也叫准确率，又叫PPV（Positive Predictive Value）
 
 Precision = TP/(TP+FP) = TP/(Predicted Positive)
 
 > Precision即模型预测出来的有多少是对的
 
-准确率高：TP↑、FP→0，模型检测出来的“猫图”实际上都是真的“猫图”，模型检测结果非常“准”。
+查准率高：TP↑、FP→0，模型检测出来的“猫图”实际上都是真的“猫图”，模型检测结果非常“准”。
 
-Recall召回率，定义同TPR，见前文。
+Recall查全率、召回率，定义同TPR，见前文。
 
-召回率高：送给模型检测的“猫图”都被检测出来了。（如果一个模型对任意的图像输入，都输出图中“有猫”，则召回率也是1）
+查全率高：送给模型检测的“猫图”都被检测出来了。（如果一个模型对任意的图像输入，都输出图中“有猫”，则查全率也是1）
 
-> 准确率Precision与召回率Recall概念常一同使用，可简单理解为：召回率是检出占所有送检的“多少”，准确率是检出的有“多少是对的”。
-召回率代表检出的“数量”，准确率代表检出的“质量”。
+> 查准率Precision与查全率Recall概念常一同使用，可简单理解为：查全率是检出占所有送检的“多少”，查准率是检出的有“多少是对的”。
+查全率代表检出的“数量”，查准率代表检出的“质量”。
