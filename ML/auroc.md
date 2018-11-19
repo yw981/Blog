@@ -63,8 +63,22 @@ AUROC < 0.5，比随机猜测还差；但只要总是反预测而行，就优于
 
 ## ROC空间
 
+ROC空间就是以假正类率FPR（False Positive Rate）为横轴，真正类率TPR（True Positive Rate）为纵轴所构成的平面空间。
+
+模型输出的结果经过计算，会成为落在ROC空间中的点，对ROC空间中的点的位置的比较，可以直观地反映模型的性能好坏。
+
 ![](four_results.png)
+
+以上是4个模型的输出结果，其中C和C'互为相反的模型，即C模型输出Positive时，C'输出Negative，反之亦然。
 
 ![](roc_space.png)
 
-Plots of the four results above in the ROC space are given in the figure. The result of method A clearly shows the best predictive power among A, B, and C. The result of B lies on the random guess line (the diagonal line), and it can be seen in the table that the accuracy of B is 50%. However, when C is mirrored across the center point (0.5,0.5), the resulting method C′ is even better than A. This mirrored method simply reverses the predictions of whatever method or test produced the C contingency table. Although the original C method has negative predictive power, simply reversing its decisions leads to a new predictive method C′ which has positive predictive power. When the C method predicts p or n, the C′ method would predict n or p, respectively. In this manner, the C′ test would perform the best. The closer a result from a contingency table is to the upper left corner, the better it predicts, but the distance from the random guess line in either direction is the best indicator of how much predictive power a method has. If the result is below the line (i.e. the method is worse than a random guess), all of the method's predictions must be reversed in order to utilize its power, thereby moving the result above the random guess line.
+以上是4个模型的输出结果落在ROC空间中的点。
+
+> 点越靠近空间的左上角，其预测性能越好
+> 点与随机猜测线（虚线）的距离的大小，表示模型的预测能力的大小
+> 如果点落在随机猜测线下，表名模型性能甚至不如随机选择，应对其结果取反再计算
+
+结果表明，模型A在A、B、C模型中具有最好的预测性能。
+模型B落在随机猜测线上（虚线），可以看到B的准确率是50%。
+模型C表现最差，然而，其关于中心（0.5,0.5）的对称点C'，性能甚至超过A。
