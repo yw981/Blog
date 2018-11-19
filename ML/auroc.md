@@ -41,7 +41,7 @@ AUROC (Area Under Receiver Operating Characteristic curve)，有时简称AUC (Ar
 
 AUROC的计算有两种方式，梯形法和ROC AUCH法，都是以逼近法求近似值
 
-## AUROC意味着什么
+## AUROC的直观意义
 
 那么AUROC值的含义是什么呢？根据(Fawcett, 2006)，AUROC的值的含义是：
 
@@ -76,7 +76,9 @@ ROC空间就是以假正类率FPR（False Positive Rate）为横轴，真正类�
 以上是4个模型的输出结果落在ROC空间中的点。
 
 > 点越靠近空间的左上角，其预测性能越好
+
 > 点与随机猜测线（虚线）的距离的大小，表示模型的预测能力的大小
+
 > 如果点落在随机猜测线下，表名模型性能甚至不如随机选择，应对其结果取反再计算
 
 结果表明，模型A在A、B、C模型中具有最好的预测性能。
